@@ -3,9 +3,8 @@ import { useTheme } from '../../context/ThemeContext';
 import { getAllVisitors, updateVisitorStatus } from '../../utils/localStorage';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
-import axios from '../../utils/axios';
 
 const VisitorList = () => {
   const { isDarkMode } = useTheme();
@@ -18,19 +17,28 @@ const VisitorList = () => {
   const [sortOrder, setSortOrder] = useState('desc');
 
   useEffect(() => {
-    fetchVisitors();
-  }, []);
+    // Get visitors from localStorage
+    const fetchVisitors = () => {
+      setLoading(true);
+      try {
+        const visitorsObj = getAllVisitors();
+        // Convert object to array for easier manipulation
+        const visitorsArray = Object.values(visitorsObj);
+        setVisitors(visitorsArray);
+      } catch (error) {
+        console.error('Error fetching visitors:', error);
+        toast.error('Failed to load visitor data');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const fetchVisitors = async () => {
-    try {
-      const response = await axios.get('/visitors');
-      setVisitors(response.data);
-      setLoading(false);
-    } catch (error) {
-      toast.error('Error fetching visitors');
-      setLoading(false);
-    }
-  };
+    fetchVisitors();
+    // Set up a timer to refresh the data every minute
+    const refreshInterval = setInterval(fetchVisitors, 60000);
+    
+    return () => clearInterval(refreshInterval);
+  }, []);
 
   // Filter and sort visitors
   const filteredVisitors = visitors
@@ -93,10 +101,6 @@ const VisitorList = () => {
       return 'Invalid date';
     }
   };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-8">
@@ -235,8 +239,8 @@ const VisitorList = () => {
                   <th scope="col" className={`py-3.5 px-3 text-left text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
                   Actions
                 </th>
-                </tr>
-              </thead>
+              </tr>
+            </thead>
               <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
                 {loading ? (
                   <tr>
