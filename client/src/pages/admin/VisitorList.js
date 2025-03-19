@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { getAllVisitors, updateVisitorStatus } from '../../utils/localStorage';
+import { getVisitors, updateVisitorStatus } from '../../services/visitorService';
 import { formatDistanceToNow } from 'date-fns';
 import { toast } from 'react-toastify';
 import { useNavigate, Link } from 'react-router-dom';
@@ -11,22 +11,23 @@ const VisitorList = () => {
   const navigate = useNavigate();
   const [visitors, setVisitors] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [sortBy, setSortBy] = useState('timestamp');
   const [sortOrder, setSortOrder] = useState('desc');
 
   useEffect(() => {
-    // Get visitors from localStorage
-    const fetchVisitors = () => {
+    const fetchVisitors = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const visitorsObj = getAllVisitors();
-        // Convert object to array for easier manipulation
-        const visitorsArray = Object.values(visitorsObj);
-        setVisitors(visitorsArray);
+        // Fetch data from MongoDB through API
+        const data = await getVisitors();
+        setVisitors(data);
       } catch (error) {
         console.error('Error fetching visitors:', error);
+        setError('Failed to load visitor data');
         toast.error('Failed to load visitor data');
       } finally {
         setLoading(false);
@@ -74,13 +75,13 @@ const VisitorList = () => {
       return 0;
     });
 
-  const handleStatusChange = (visitorId, newStatus) => {
+  const handleStatusChange = async (visitorId, newStatus) => {
     try {
-      const updatedVisitor = updateVisitorStatus(visitorId, newStatus);
+      const updatedVisitor = await updateVisitorStatus(visitorId, newStatus);
       if (updatedVisitor) {
         setVisitors(prevVisitors => 
           prevVisitors.map(visitor => 
-            visitor.visitorId === visitorId 
+            visitor._id === visitorId 
               ? { ...visitor, status: newStatus, lastUpdated: new Date().toISOString() }
               : visitor
           )
@@ -101,6 +102,39 @@ const VisitorList = () => {
       return 'Invalid date';
     }
   };
+
+  // Function to get status display name
+  const getStatusDisplayName = (status) => {
+    switch(status) {
+      case 'checked-in': return 'Checked In';
+      case 'checked-out': return 'Checked Out';
+      case 'pending': return 'Pending';
+      case 'rejected': return 'Rejected';
+      default: return status;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col justify-center items-center h-64">
+        <div className={`text-lg ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>{error}</div>
+        <button 
+          onClick={() => window.location.reload()} 
+          className="mt-4 bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="px-4 sm:px-6 lg:px-8 py-8">
@@ -123,35 +157,31 @@ const VisitorList = () => {
       </div>
 
       {/* Filters */}
-      <div className="mt-6 mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <label htmlFor="search" className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
             Search
           </label>
-          <div className="mt-1">
           <input
             type="text"
-              name="search"
-              id="search"
+            id="search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-              className={`block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
-                isDarkMode 
-                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                  : 'border-gray-300'
-              }`}
-              placeholder="Search visitors..."
-            />
-          </div>
+            className={`mt-1 block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
+              isDarkMode 
+                ? 'bg-gray-700 border-gray-600 text-white' 
+                : 'border-gray-300'
+            }`}
+            placeholder="Search visitors..."
+          />
         </div>
 
         <div>
-          <label htmlFor="filter-status" className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          <label htmlFor="status-filter" className={`block text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
             Status
           </label>
           <select
-            id="filter-status"
-            name="filter-status"
+            id="status-filter"
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
             className={`mt-1 block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
@@ -162,8 +192,9 @@ const VisitorList = () => {
           >
             <option value="all">All</option>
             <option value="pending">Pending</option>
-            <option value="checked-in">Checked-in</option>
-            <option value="checked-out">Checked-out</option>
+            <option value="checked-in">Checked In</option>
+            <option value="checked-out">Checked Out</option>
+            <option value="rejected">Rejected</option>
           </select>
         </div>
 
@@ -173,7 +204,6 @@ const VisitorList = () => {
           </label>
           <select
             id="sort-by"
-            name="sort-by"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             className={`mt-1 block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
@@ -193,7 +223,6 @@ const VisitorList = () => {
           </label>
           <select
             id="sort-order"
-            name="sort-order"
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}
             className={`mt-1 block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
@@ -223,38 +252,26 @@ const VisitorList = () => {
                   </th>
                   <th scope="col" className={`py-3.5 px-3 text-left text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
                     Contact
-                </th>
+                  </th>
                   <th scope="col" className={`py-3.5 px-3 text-left text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                  Purpose
-                </th>
+                    Purpose
+                  </th>
                   <th scope="col" className={`py-3.5 px-3 text-left text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
                     Host
-                </th>
+                  </th>
                   <th scope="col" className={`py-3.5 px-3 text-left text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
                     Registered
-                </th>
+                  </th>
                   <th scope="col" className={`py-3.5 px-3 text-left text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                  Status
-                </th>
+                    Status
+                  </th>
                   <th scope="col" className={`py-3.5 px-3 text-left text-sm font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-900'}`}>
-                  Actions
-                </th>
-              </tr>
-            </thead>
+                    Actions
+                  </th>
+                </tr>
+              </thead>
               <tbody className={`divide-y ${isDarkMode ? 'divide-gray-700' : 'divide-gray-200'}`}>
-                {loading ? (
-                  <tr>
-                    <td colSpan="8" className={`py-10 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      <div className="flex justify-center">
-                        <svg className="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                      </div>
-                      <div className="mt-2">Loading visitors...</div>
-                    </td>
-                  </tr>
-                ) : filteredVisitors.length === 0 ? (
+                {filteredVisitors.length === 0 ? (
                   <tr>
                     <td colSpan="8" className={`py-10 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       No visitors found.
@@ -262,7 +279,7 @@ const VisitorList = () => {
                   </tr>
                 ) : (
                   filteredVisitors.map((visitor) => (
-                    <tr key={visitor.visitorId} className={isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}>
+                    <tr key={visitor._id} className={isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}>
                       <td className={`whitespace-nowrap py-4 pl-4 pr-3 text-sm ${
                         isDarkMode ? 'text-gray-200' : 'text-gray-900'
                       } font-medium`}>
@@ -284,54 +301,52 @@ const VisitorList = () => {
                       <td className={`whitespace-nowrap px-3 py-4 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
                         {formatTimestamp(visitor.timestamp)}
                       </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm">
-                        <span className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                          visitor.status === 'checked-in' 
-                            ? 'bg-green-100 text-green-800' 
-                            : visitor.status === 'checked-out'
-                              ? 'bg-gray-100 text-gray-800'
-                              : 'bg-yellow-100 text-yellow-800'
+                      <td className={`whitespace-nowrap px-3 py-4 text-sm`}>
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          visitor.status === 'checked-in' ? 'bg-green-100 text-green-800' :
+                          visitor.status === 'checked-out' ? 'bg-gray-100 text-gray-800' :
+                          visitor.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                          'bg-yellow-100 text-yellow-800'
                         }`}>
-                          {visitor.status === 'checked-in' 
-                            ? 'Checked In' 
-                            : visitor.status === 'checked-out'
-                              ? 'Checked Out'
-                              : 'Pending'}
+                          {getStatusDisplayName(visitor.status)}
                         </span>
                       </td>
-                      <td className={`whitespace-nowrap px-3 py-4 text-sm text-right ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+                      <td className={`whitespace-nowrap px-3 py-4 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
                         <div className="flex space-x-2">
                           {visitor.status === 'pending' && (
-                            <button
-                              onClick={() => handleStatusChange(visitor.visitorId, 'checked-in')}
-                              className="text-xs inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700"
-                            >
-                              Check In
-                            </button>
+                            <>
+                              <button
+                                onClick={() => handleStatusChange(visitor._id, 'checked-in')}
+                                className="text-green-600 hover:text-green-900"
+                              >
+                                Check In
+                              </button>
+                              <button
+                                onClick={() => handleStatusChange(visitor._id, 'rejected')}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                Reject
+                              </button>
+                            </>
                           )}
-                          
                           {visitor.status === 'checked-in' && (
                             <button
-                              onClick={() => handleStatusChange(visitor.visitorId, 'checked-out')}
-                              className="text-xs inline-flex items-center px-2.5 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-gray-600 hover:bg-gray-700"
+                              onClick={() => handleStatusChange(visitor._id, 'checked-out')}
+                              className="text-blue-600 hover:text-blue-900"
                             >
                               Check Out
                             </button>
                           )}
-                          
-                          {visitor.status === 'checked-out' && (
-                            <span className="text-xs text-gray-500">Completed</span>
-                          )}
                         </div>
-                  </td>
-                </tr>
+                      </td>
+                    </tr>
                   ))
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-        </div>
     </div>
   );
 };

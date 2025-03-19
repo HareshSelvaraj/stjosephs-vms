@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import { useTheme } from '../../context/ThemeContext';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { isDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState('pending');
   
   // Mock data for staff dashboard
@@ -94,25 +99,58 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-        <h1 className="text-2xl font-bold mb-4 md:mb-0">Staff Dashboard</h1>
-        <div className="flex items-center space-x-4">
-          <div className="flex bg-gray-100 p-1 rounded-md">
+    <div className={`container mx-auto px-4 py-8 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+      <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center">
+          <button 
+            onClick={() => navigate(-1)} 
+            className={`mr-4 p-2 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} transition-colors`}
+            aria-label="Go back"
+          >
+            <FaArrowLeft className={isDarkMode ? "text-gray-300" : "text-gray-600"} />
+          </button>
+          <h1 className="text-2xl font-bold">Staff Dashboard</h1>
+        </div>
+        <div className="flex">
+          <div className={`flex bg-${isDarkMode ? 'gray-700' : 'gray-100'} p-1 rounded-md`}>
             <button
-              className={`px-4 py-2 rounded-md ${activeTab === 'pending' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
+              className={`px-4 py-2 rounded-md ${
+                activeTab === 'pending' 
+                  ? isDarkMode 
+                    ? 'bg-gray-800 text-white shadow-sm' 
+                    : 'bg-white text-gray-800 shadow-sm' 
+                  : isDarkMode 
+                    ? 'text-gray-300' 
+                    : 'text-gray-500'
+              }`}
               onClick={() => setActiveTab('pending')}
             >
               Pending ({pendingVisitors.length})
             </button>
             <button
-              className={`px-4 py-2 rounded-md ${activeTab === 'today' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
+              className={`px-4 py-2 rounded-md ${
+                activeTab === 'today' 
+                  ? isDarkMode 
+                    ? 'bg-gray-800 text-white shadow-sm' 
+                    : 'bg-white text-gray-800 shadow-sm' 
+                  : isDarkMode 
+                    ? 'text-gray-300' 
+                    : 'text-gray-500'
+              }`}
               onClick={() => setActiveTab('today')}
             >
               Today
             </button>
             <button
-              className={`px-4 py-2 rounded-md ${activeTab === 'upcoming' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
+              className={`px-4 py-2 rounded-md ${
+                activeTab === 'upcoming' 
+                  ? isDarkMode 
+                    ? 'bg-gray-800 text-white shadow-sm' 
+                    : 'bg-white text-gray-800 shadow-sm' 
+                  : isDarkMode 
+                    ? 'text-gray-300' 
+                    : 'text-gray-500'
+              }`}
               onClick={() => setActiveTab('upcoming')}
             >
               Upcoming
@@ -123,21 +161,21 @@ const Dashboard = () => {
 
       {/* Pending Visitors */}
       {activeTab === 'pending' && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Pending Visitor Approvals</h2>
+        <div className={`rounded-lg shadow-md p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Pending Visitor Approvals</h2>
           {pendingVisitors.length > 0 ? (
             <div className="space-y-4">
               {pendingVisitors.map(visitor => (
-                <div key={visitor.id} className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between">
+                <div key={visitor.id} className={`border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}>
                   <div className="mb-4 md:mb-0">
-                    <h3 className="font-semibold">{visitor.name}</h3>
-                    <p className="text-sm text-gray-600">{visitor.purpose}</p>
+                    <h3 className={`font-semibold ${isDarkMode ? 'text-gray-200' : ''}`}>{visitor.name}</h3>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{visitor.purpose}</p>
                     <div className="flex items-center mt-1">
                       <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{visitor.visitType}</span>
                       <span className="mx-2 text-gray-400">•</span>
-                      <span className="text-xs text-gray-600">Check-in: {visitor.checkInTime}</span>
+                      <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Check-in: {visitor.checkInTime}</span>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mt-1`}>
                       <i className="fas fa-phone mr-1"></i> {visitor.phone}
                     </p>
                   </div>
@@ -149,7 +187,7 @@ const Dashboard = () => {
                       <span className="mr-1">✓</span> Approve
                     </button>
                     <button 
-                      className="bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-md text-sm flex items-center transition"
+                      className={`${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'} px-4 py-2 rounded-md text-sm flex items-center transition`}
                       onClick={() => handleRejectVisitor(visitor.id)}
                     >
                       <span className="mr-1">✕</span> Reject
@@ -159,7 +197,7 @@ const Dashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               No pending visitors at the moment
             </div>
           )}
@@ -168,23 +206,23 @@ const Dashboard = () => {
 
       {/* Today's Visitors */}
       {activeTab === 'today' && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Today's Visitors</h2>
+        <div className={`rounded-lg shadow-md p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Today's Visitors</h2>
           {todayVisitors.length > 0 ? (
             <div className="space-y-4">
               {todayVisitors.map(visitor => (
-                <div key={visitor.id} className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between">
+                <div key={visitor.id} className={`border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}>
                   <div className="mb-4 md:mb-0">
-                    <h3 className="font-semibold">{visitor.name}</h3>
-                    <p className="text-sm text-gray-600">{visitor.purpose}</p>
+                    <h3 className={`font-semibold ${isDarkMode ? 'text-gray-200' : ''}`}>{visitor.name}</h3>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{visitor.purpose}</p>
                     <div className="flex items-center mt-1">
                       <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{visitor.visitType}</span>
                       <span className="mx-2 text-gray-400">•</span>
-                      <span className="text-xs text-gray-600">Check-in: {visitor.checkInTime}</span>
+                      <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Check-in: {visitor.checkInTime}</span>
                       {visitor.checkOutTime && (
                         <>
                           <span className="mx-2 text-gray-400">•</span>
-                          <span className="text-xs text-gray-600">Check-out: {visitor.checkOutTime}</span>
+                          <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Check-out: {visitor.checkOutTime}</span>
                         </>
                       )}
                     </div>
@@ -200,13 +238,13 @@ const Dashboard = () => {
                   <div className="flex space-x-2">
                     {visitor.status === 'In Meeting' && (
                       <button 
-                        className="bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-2 rounded-md text-sm flex items-center transition"
+                        className="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm flex items-center transition"
                         onClick={() => handleCompleteVisit(visitor.id)}
                       >
                         <span className="mr-1">✓</span> Complete Visit
                       </button>
                     )}
-                    <button className="bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-md text-sm flex items-center transition">
+                    <button className={`${isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'} px-4 py-2 rounded-md text-sm flex items-center transition`}>
                       <span className="mr-1">📝</span> Details
                     </button>
                   </div>
@@ -214,7 +252,7 @@ const Dashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
+            <div className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               No visitors today
             </div>
           )}
@@ -223,29 +261,29 @@ const Dashboard = () => {
 
       {/* Upcoming Visitors */}
       {activeTab === 'upcoming' && (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-semibold mb-4">Upcoming Visitors</h2>
+        <div className={`rounded-lg shadow-md p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Upcoming Visitors</h2>
           {upcomingVisitors.length > 0 ? (
             <div className="space-y-4">
               {upcomingVisitors.map(visitor => (
-                <div key={visitor.id} className="border rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between">
+                <div key={visitor.id} className={`border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}`}>
                   <div className="mb-4 md:mb-0">
-                    <h3 className="font-semibold">{visitor.name}</h3>
-                    <p className="text-sm text-gray-600">{visitor.purpose}</p>
+                    <h3 className={`font-semibold ${isDarkMode ? 'text-gray-200' : ''}`}>{visitor.name}</h3>
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{visitor.purpose}</p>
                     <div className="flex items-center mt-1">
                       <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">{visitor.visitType}</span>
                       <span className="mx-2 text-gray-400">•</span>
-                      <span className="text-xs text-gray-600">{visitor.date}, {visitor.scheduledTime}</span>
+                      <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{visitor.date}, {visitor.scheduledTime}</span>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mt-1`}>
                       <i className="fas fa-phone mr-1"></i> {visitor.phone}
                     </p>
                   </div>
                   <div className="flex space-x-2">
-                    <button className="bg-red-100 text-red-700 hover:bg-red-200 px-4 py-2 rounded-md text-sm flex items-center transition">
+                    <button className={`${isDarkMode ? 'bg-gray-700 text-amber-400 hover:bg-gray-600' : 'bg-amber-100 text-amber-700 hover:bg-amber-200'} px-4 py-2 rounded-md text-sm flex items-center transition`}>
                       <span className="mr-1">🗓️</span> Reschedule
                     </button>
-                    <button className="bg-gray-100 text-gray-700 hover:bg-gray-200 px-4 py-2 rounded-md text-sm flex items-center transition">
+                    <button className={`${isDarkMode ? 'bg-gray-700 text-red-400 hover:bg-gray-600' : 'bg-red-100 text-red-700 hover:bg-red-200'} px-4 py-2 rounded-md text-sm flex items-center transition`}>
                       <span className="mr-1">✕</span> Cancel
                     </button>
                   </div>
@@ -253,32 +291,60 @@ const Dashboard = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              No upcoming visitors
+            <div className={`text-center py-8 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              No upcoming appointments
             </div>
           )}
         </div>
       )}
 
-      {/* Quick Access */}
-      <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4">Quick Access</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-gray-50 p-4 rounded-md text-center">
-            <div className="text-primary text-2xl mb-2">📊</div>
-            <h3 className="font-medium">Visitor History</h3>
+      {/* Staff Stats and Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <div className={`rounded-lg shadow-md p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Statistics</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Today's Meetings</p>
+              <p className="text-2xl font-bold text-primary">{todayVisitors.length}</p>
+            </div>
+            <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Pending Approvals</p>
+              <p className="text-2xl font-bold text-amber-500">{pendingVisitors.length}</p>
+            </div>
+            <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Upcoming Meetings</p>
+              <p className="text-2xl font-bold text-green-600">{upcomingVisitors.length}</p>
+            </div>
+            <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Visitors</p>
+              <p className="text-2xl font-bold text-blue-500">{todayVisitors.length + pendingVisitors.length}</p>
+            </div>
           </div>
-          <div className="bg-gray-50 p-4 rounded-md text-center">
-            <div className="text-primary text-2xl mb-2">📅</div>
-            <h3 className="font-medium">My Schedule</h3>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-md text-center">
-            <div className="text-primary text-2xl mb-2">⚙️</div>
-            <h3 className="font-medium">Settings</h3>
-          </div>
-          <div className="bg-gray-50 p-4 rounded-md text-center">
-            <div className="text-primary text-2xl mb-2">📱</div>
-            <h3 className="font-medium">Notifications</h3>
+        </div>
+
+        <div className={`rounded-lg shadow-md p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <h2 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Quick Actions</h2>
+          <div className="space-y-3">
+            <button className={`w-full text-left px-4 py-2 rounded flex items-center ${
+              isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
+            }`}>
+              <span className="mr-2">📋</span> Schedule a Meeting
+            </button>
+            <button className={`w-full text-left px-4 py-2 rounded flex items-center ${
+              isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
+            }`}>
+              <span className="mr-2">📝</span> Leave a Note
+            </button>
+            <button className={`w-full text-left px-4 py-2 rounded flex items-center ${
+              isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
+            }`}>
+              <span className="mr-2">🔍</span> Search Visitor History
+            </button>
+            <button className={`w-full text-left px-4 py-2 rounded flex items-center ${
+              isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-gray-200' : 'bg-gray-50 hover:bg-gray-100 text-gray-700'
+            }`}>
+              <span className="mr-2">⚙️</span> Preferences
+            </button>
           </div>
         </div>
       </div>

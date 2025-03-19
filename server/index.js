@@ -1,17 +1,26 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db');
+const mongoose = require('mongoose');
 const path = require('path');
 
 // Load environment variables
 dotenv.config();
 
-// Connect to MongoDB
-connectDB();
-
 const app = express();
 const PORT = process.env.PORT || 5001;
+
+// MongoDB URI with updated password - now using the one that worked in our test
+const MONGO_URI = "mongodb+srv://hareshswork:McPghY7ofQNf24Dz@vms.oqbam.mongodb.net/?retryWrites=true&w=majority";
+console.log("MongoDB URI:", MONGO_URI);
+
+// Connect with minimal options - simplified approach that worked in our test
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('✅ MongoDB Connected Successfully!'))
+  .catch(err => {
+    console.error(`❌ Error connecting to MongoDB: ${err.message}`);
+    // Don't exit the process, allow the app to run with fallback data
+  });
 
 // Middleware
 app.use(cors());

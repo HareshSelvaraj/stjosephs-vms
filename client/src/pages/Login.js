@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useTheme } from '../context/ThemeContext';
+import { login } from '../services/authService';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const Login = () => {
     userType: 'admin' // admin or staff
   });
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const { email, password, userType } = formData;
 
@@ -22,25 +24,45 @@ const Login = () => {
   const onSubmit = async e => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // In a real app, you would make an actual API call to your backend
-      // For demo purposes, we'll use dummy credentials
+      // Temporarily use demo login
       if (userType === 'admin' && email === 'admin@stjosephs.edu' && password === 'admin123') {
+        // Store demo token
+        localStorage.setItem('token', 'demo-admin-token');
+        localStorage.setItem('userType', 'admin');
+        
         toast.success('Login successful!');
         navigate('/admin/dashboard');
       } else if (userType === 'staff' && email === 'staff@stjosephs.edu' && password === 'staff123') {
+        // Store demo token
+        localStorage.setItem('token', 'demo-staff-token');
+        localStorage.setItem('userType', 'staff');
+        
         toast.success('Login successful!');
         navigate('/staff/dashboard');
       } else {
-        toast.error('Invalid credentials');
+        // Try API login if demo credentials don't match
+        try {
+          await login(formData);
+          toast.success('Login successful!');
+          
+          // Redirect based on user type
+          if (userType === 'admin') {
+            navigate('/admin/dashboard');
+          } else {
+            navigate('/staff/dashboard');
+          }
+        } catch (apiError) {
+          throw new Error('Invalid credentials');
+        }
       }
     } catch (err) {
       console.error(err);
-      toast.error('Login failed. Please try again.');
+      const errorMsg = err.message || 'Login failed. Please try again.';
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -63,6 +85,14 @@ const Login = () => {
             Access the St. Joseph's College Visitor Management System
           </p>
         </div>
+        
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+            <strong className="font-bold">Error:</strong>
+            <span className="block sm:inline"> {error}</span>
+          </div>
+        )}
+        
         <form className="mt-8 space-y-6" onSubmit={onSubmit}>
           <div className="space-y-4">
             <div>

@@ -1,14 +1,13 @@
 const mongoose = require('mongoose');
 
-const VisitorSchema = new mongoose.Schema({
+const visitorSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true
   },
   email: {
     type: String,
-    required: true,
-    unique: true
+    required: true
   },
   phone: {
     type: String,
@@ -18,35 +17,33 @@ const VisitorSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  visitType: {
-    type: String,
-    enum: ['Parent', 'Guest', 'Vendor', 'Other'],
-    default: 'Guest'
-  },
   whomToMeet: {
     type: String,
     required: true
   },
-  idProofType: {
+  status: {
     type: String,
-    enum: ['Aadhar', 'PAN', 'Driving License', 'Passport', 'Voter ID', 'Other'],
-    required: true
+    enum: ['pending', 'checked-in', 'checked-out', 'rejected'],
+    default: 'pending'
   },
-  idProofNumber: {
+  checkInTime: {
+    type: Date
+  },
+  checkOutTime: {
+    type: Date
+  },
+  visitorId: {
     type: String,
-    required: true
+    unique: true
   },
-  qrCode: {
-    type: String
+  timestamp: {
+    type: Date,
+    default: Date.now
   },
-  isPreRegistered: {
-    type: Boolean,
-    default: false
-  },
-  registrationDate: {
+  lastUpdated: {
     type: Date,
     default: Date.now
   }
 });
 
-module.exports = mongoose.model('Visitor', VisitorSchema);
+module.exports = mongoose.model('Visitor', visitorSchema);

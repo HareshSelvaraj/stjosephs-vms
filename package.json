@@ -22,7 +22,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^8.2.0"
+    "concurrently": "^8.2.0",
+    "mongoose": "^8.12.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

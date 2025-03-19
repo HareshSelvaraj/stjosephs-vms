@@ -1,88 +1,111 @@
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
-const bcrypt = require('bcryptjs');
-const Admin = require('../models/Admin');
-const Staff = require('../models/Staff');
+const Visitor = require('../models/Visitor');
 
-// Load env vars
-dotenv.config();
+// MongoDB URI - using the one that worked in our test
+const MONGO_URI = "mongodb+srv://hareshswork:McPghY7ofQNf24Dz@vms.oqbam.mongodb.net/?retryWrites=true&w=majority";
+console.log("MongoDB URI:", MONGO_URI);
 
-// Connect to DB with more robust error handling
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-    return true;
-  } catch (error) {
-    console.error(`Error connecting to MongoDB: ${error.message}`);
+// Connect to MongoDB with simplified approach that worked
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('✅ MongoDB Connected for seeding'))
+  .catch(err => {
+    console.error(`❌ Error connecting to MongoDB: ${err.message}`);
     process.exit(1);
-  }
-};
+  });
 
-// Seed data
-const seedData = async () => {
+// Sample visitor data
+const visitors = [
+  {
+    name: 'Rajesh Kumar',
+    email: 'rajesh@example.com',
+    phone: '9876543210',
+    purpose: 'Parent Teacher Meeting',
+    whomToMeet: 'Prof. Sharma',
+    status: 'checked-in',
+    checkInTime: new Date(),
+    visitorId: 'VIS-001',
+    timestamp: new Date(),
+    lastUpdated: new Date()
+  },
+  {
+    name: 'Priya Sharma',
+    email: 'priya@example.com',
+    phone: '9876543211',
+    purpose: 'Admission Enquiry',
+    whomToMeet: 'Admission Office',
+    status: 'checked-out',
+    checkInTime: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
+    checkOutTime: new Date(),
+    visitorId: 'VIS-002',
+    timestamp: new Date(),
+    lastUpdated: new Date()
+  },
+  {
+    name: 'Vikram Singh',
+    email: 'vikram@example.com',
+    phone: '9876543212',
+    purpose: 'Campus Tour',
+    whomToMeet: 'Student Coordinator',
+    status: 'pending',
+    visitorId: 'VIS-003',
+    timestamp: new Date(),
+    lastUpdated: new Date()
+  },
+  {
+    name: 'Anjali Desai',
+    email: 'anjali@example.com',
+    phone: '9876543213',
+    purpose: 'Project Discussion',
+    whomToMeet: 'Prof. Mehta',
+    status: 'checked-in',
+    checkInTime: new Date(),
+    visitorId: 'VIS-004',
+    timestamp: new Date(),
+    lastUpdated: new Date()
+  },
+  {
+    name: 'Karthik Reddy',
+    email: 'karthik@example.com',
+    phone: '9876543214',
+    purpose: 'Job Interview',
+    whomToMeet: 'HR Department',
+    status: 'rejected',
+    visitorId: 'VIS-005',
+    timestamp: new Date(),
+    lastUpdated: new Date()
+  }
+];
+
+// Import data
+const importData = async () => {
   try {
-    // Connect to the database first
-    await connectDB();
+    await Visitor.deleteMany();
+    console.log('All existing visitors deleted');
     
-    // Clear existing data
-    await Admin.deleteMany();
-    await Staff.deleteMany();
-
-    console.log('Data cleared...');
-
-    // Create admin
-    const salt = await bcrypt.genSalt(10);
-    const adminPassword = await bcrypt.hash('admin123', salt);
-    const staffPassword = await bcrypt.hash('staff123', salt);
-
-    await Admin.create({
-      name: 'Admin User',
-      email: 'admin@stjosephs.edu',
-      password: adminPassword,
-      role: 'SuperAdmin'
-    });
-
-    console.log('Admin user created');
-
-    await Staff.create({
-      name: 'Staff Member',
-      email: 'staff@stjosephs.edu',
-      password: staffPassword,
-      department: 'Computer Science',
-      position: 'Professor',
-      officeLocation: 'Main Building, Room 101'
-    });
-
-    console.log('Staff member created');
-    console.log('Data imported successfully');
-    process.exit(0);
+    await Visitor.insertMany(visitors);
+    console.log('✅ Sample visitors imported successfully!');
+    process.exit();
   } catch (error) {
-    console.error(`Error seeding data: ${error.message}`);
+    console.error(`❌ Error: ${error.message}`);
     process.exit(1);
   }
 };
 
-// Delete data
-const deleteData = async () => {
+// Delete all data
+const destroyData = async () => {
   try {
-    // Connect to the database first
-    await connectDB();
-    
-    await Admin.deleteMany();
-    await Staff.deleteMany();
-
-    console.log('Data destroyed...');
-    process.exit(0);
+    await Visitor.deleteMany();
+    console.log('✅ All visitor data destroyed!');
+    process.exit();
   } catch (error) {
-    console.error(`Error deleting data: ${error.message}`);
+    console.error(`❌ Error: ${error.message}`);
     process.exit(1);
   }
 };
 
-// Handle command line arguments
+// Check command line args
 if (process.argv[2] === '-d') {
-  deleteData();
+  destroyData();
 } else {
-  seedData();
+  importData();
 } 

@@ -6,8 +6,8 @@ const AnimatedBackground = ({ children }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const { isDarkMode } = useTheme();
   
-  // Generate random number of particles (between 15-25)
-  const particleCount = Math.floor(Math.random() * 10) + 15;
+  // Generate random number of particles (between 10-20)
+  const particleCount = Math.floor(Math.random() * 10) + 10;
   
   // Create array of particles with random positions and sizes
   const particles = Array.from({ length: particleCount }).map((_, index) => {
@@ -21,9 +21,18 @@ const AnimatedBackground = ({ children }) => {
     };
   });
 
-  // Track mouse position
+  // Track mouse position with throttling
   useEffect(() => {
+    let timeoutId = null;
+    
     const handleMouseMove = (e) => {
+      // Skip if we're still in the throttle period
+      if (timeoutId) return;
+      
+      timeoutId = setTimeout(() => {
+        timeoutId = null;
+      }, 50); // Throttle to reduce updates (50ms)
+      
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
       
@@ -38,6 +47,7 @@ const AnimatedBackground = ({ children }) => {
     
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, []);
 
@@ -70,8 +80,11 @@ const AnimatedBackground = ({ children }) => {
               height: particle.size,
               animationDuration: particle.duration,
               animationDelay: particle.delay,
-              transform: `translate(${(mousePosition.x - 50) / 15}px, ${(mousePosition.y - 50) / 15}px)`,
-              backgroundColor: isDarkMode ? 'rgba(148, 163, 184, 0.5)' : 'rgba(30, 64, 175, 0.5)'
+              // Reduced sensitivity by increasing the divisor from 15 to 50
+              transform: `translate(${(mousePosition.x - 50) / 50}px, ${(mousePosition.y - 50) / 50}px)`,
+              backgroundColor: isDarkMode ? 'rgba(148, 163, 184, 0.5)' : 'rgba(30, 64, 175, 0.5)',
+              // Added transition for smoother movement
+              transition: 'transform 0.5s ease-out'
             }}
           />
         ))}
