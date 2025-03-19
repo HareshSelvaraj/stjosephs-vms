@@ -21,6 +21,7 @@ app.use(express.json());
 app.use('/api/visitors', require('./routes/visitors'));
 app.use('/api/staff', require('./routes/staff'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/auth', require('./routes/auth'));
 
 // Basic API route
 app.get('/api', (req, res) => {
