@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800px" height="800px" viewBox="0 0 800 800">
+  <circle cx="400" cy="400" r="385" fill="#fffaa0" stroke="#ed1c24" stroke-width="30"/>
+  <path d="M400,15 A385,385 0 1,0 400,785 A385,385 0 1,0 400,15 Z" fill="none" stroke="#ed1c24" stroke-width="30"/>
+  <text x="400" y="200" text-anchor="middle" font-family="Arial" font-size="48" font-weight="bold" fill="#ed1c24">St. JOSEPH'S COLLEGE OF ENGINEERING</text>
+  <text x="400" y="750" text-anchor="middle" font-family="Arial" font-size="48" font-weight="bold" fill="#ed1c24">CHENNAI - 600 119</text>
+  <text x="400" y="880" text-anchor="middle" font-family="Arial" font-size="48" font-style="italic" fill="#000">You Choose, We Do It</text>
+  
+  <!-- Shield/Crest in the middle -->
+  <path d="M250,300 L550,300 L550,600 Q400,650 250,600 Z" fill="#fffaa0" stroke="#000" stroke-width="3"/>
+  <line x1="400" y1="300" x2="400" y2="600" stroke="#000" stroke-width="3"/>
+  <line x1="250" y1="450" x2="550" y2="450" stroke="#000" stroke-width="3"/>
+  
+  <!-- Purple bar at top of shield -->
+  <path d="M250,300 L550,300 Q550,280 570,280 L590,280 Q610,280 610,300 L610,300 Q610,320 590,320 L570,320 Q550,320 550,300" fill="#a64d79" stroke="#000" stroke-width="2"/>
+  <path d="M550,300 L250,300 Q250,280 230,280 L210,280 Q190,280 190,300 L190,300 Q190,320 210,320 L230,320 Q250,320 250,300" fill="#a64d79" stroke="#000" stroke-width="2"/>
+  
+  <!-- Computer icon -->
+  <rect x="275" y="340" width="100" height="70" stroke="#000" fill="none" stroke-width="2"/>
+  <rect x="295" y="350" width="60" height="40" stroke="#000" fill="none" stroke-width="2"/>
+  <path d="M275,410 L375,410 L385,430 L265,430 Z" stroke="#000" fill="none" stroke-width="2"/>
+
+  <!-- Satellite/Communication icon -->
+  <circle cx="475" cy="370" r="30" stroke="#000" fill="none" stroke-width="2"/>
+  <line x1="458" y1="353" x2="493" y2="388" stroke="#000" stroke-width="2"/>
+  <line x1="493" y1="353" x2="458" y2="388" stroke="#000" stroke-width="2"/>
+  <path d="M505,340 Q525,320 545,330" stroke="#000" fill="none" stroke-width="2"/>
+  <circle cx="545" cy="330" r="5" stroke="#000" fill="none" stroke-width="2"/>
+  
+  <!-- Gears icon -->
+  <circle cx="325" cy="500" r="30" stroke="#000" fill="none" stroke-width="2"/>
+  <circle cx="325" cy="500" r="15" stroke="#000" fill="none" stroke-width="2"/>
+  <path d="M325,470 L325,460 M355,500 L365,500 M325,530 L325,540 M295,500 L285,500 M342,483 L350,475 M342,517 L350,525 M308,517 L300,525 M308,483 L300,475" stroke="#000" stroke-width="2"/>
+  
+  <!-- Electronics/Circuitry icon -->
+  <path d="M475,480 Q530,480 530,510 Q530,540 475,540" stroke="#000" fill="none" stroke-width="2"/>
+  
+  <!-- Chemistry/Lab icon -->
+  <path d="M310,570 L340,570 L330,600 L320,600 Z" stroke="#000" fill="none" stroke-width="2"/>
+  <path d="M310,560 L310,570 M340,560 L340,570" stroke="#000" stroke-width="2"/>
+  <path d="M350,570 L370,570 L370,600" stroke="#000" fill="none" stroke-width="2"/>
+  
+  <!-- Electrical/Power grid icon -->
+  <path d="M470,560 L490,580 L510,560 L530,580" stroke="#000" fill="none" stroke-width="2"/>
+  <path d="M480,580 L480,600 L500,580 L500,600 L520,580 L520,600" stroke="#000" fill="none" stroke-width="2"/>
+  
+  <!-- Laurel wreath at bottom -->
+  <path d="M320,700 Q250,650 300,600 M480,700 Q550,650 500,600" stroke="#ed1c24" fill="none" stroke-width="3"/>
+  <ellipse cx="400" cy="700" rx="10" ry="5" stroke="#ed1c24" fill="none" stroke-width="3"/>
+</svg>
