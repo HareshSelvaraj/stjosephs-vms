@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/db');
+const path = require('path');
 
 // Load environment variables
 dotenv.config();
@@ -16,18 +17,26 @@ const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 
-// Basic route
-app.get('/', (req, res) => {
+// Routes
+app.use('/api/visitors', require('./routes/visitors'));
+app.use('/api/staff', require('./routes/staff'));
+app.use('/api/admin', require('./routes/admin'));
+
+// Basic API route
+app.get('/api', (req, res) => {
   res.send('Visitor Management System API is running...');
 });
 
-// Routes will be added here
-// Visitor routes
-app.use('/api/visitors', require('./routes/visitors'));
-// Admin routes
-app.use('/api/admin', require('./routes/admin'));
-// Staff routes
-app.use('/api/staff', require('./routes/staff'));
+// Serve static assets if in production
+if (process.env.NODE_ENV === 'production') {
+  // Set static folder
+  app.use(express.static(path.join(__dirname, '../client/build')));
+
+  // Any route that is not API will be redirected to index.html
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+  });
+}
 
 // Error handler middleware
 app.use((err, req, res, next) => {
